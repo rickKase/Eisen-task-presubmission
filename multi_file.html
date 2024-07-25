@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>File Management</title>
+    <!-- Include Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+      }
+      .container {
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      h1, h2 {
+        text-align: center;
+        color: #333;
+      }
+      .btn {
+        padding: 10px;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 0 2px;
+      }
+      .btn-download {
+        background-color: #28a745;
+      }
+      .btn-download:hover {
+        background-color: #218838;
+      }
+      .btn-delete {
+        background-color: #dc3545;
+      }
+      .btn-delete:hover {
+        background-color: #c82333;
+      }
+      .btn-add-files {
+        background-color: #17a2b8;
+      }
+      .btn-add-files:hover {
+        background-color: #138496;
+      }
+      .form-container {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #fff;
+        border-top: 1px solid #ddd;
+        padding: 10px 20px;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .form-container form {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .form-group {
+        flex-grow: 1;
+        margin-right: 10px;
+      }
+      input[type="file"], input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        height: 40px;
+        box-sizing: border-box;
+      }
+      button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        height: 40px;
+        margin-right: 40px;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      .submission {
+        margin-bottom: 20px;
+        position: relative;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+      }
+      .submission-details {
+        background-color: #f2f2f2;
+        padding: 10px;
+        border-radius: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+      }
+      .submission-details .delete-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+      }
+      .files {
+        margin-left: 20px;
+      }
+      .file-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 0;
+      }
+      .file-input-group {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 10px;
+      }
+      .file-input-group input[type="file"] {
+        margin-right: 10px;
+        width: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>File Management</h1>
+
+      <h2>Submissions</h2>
+      {% for submission_id, submission in submissions.items() %}
+      <div class="submission">
+        <div class="submission-details">
+          <div>
+            <strong>Submission ID:</strong> {{ submission_id }} <br>
+            <strong>Timestamp:</strong> {{ submission.timestamp }} <br>
+            <strong>Uploader:</strong> {{ submission.uploader }}
+          </div>
+          <form method="post" action="{{ url_for('delete', submission_id=submission_id) }}" class="delete-btn">
+            <button type="submit" class="btn btn-delete">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </form>
+        </div>
+        <div class="files">
+          {% for file in submission.files %}
+          <div class="file-row">
+            <span>{{ file.filename }}</span>
+            <div>
+              <a href="{{ url_for('download', file_id=file.file_id) }}" class="btn btn-download">
+                <i class="fas fa-download"></i>
+              </a>
+              <form method="post" action="{{ url_for('delete_file', file_id=file.file_id) }}" style="display:inline;">
+                <button type="submit" class="btn btn-delete">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        <div class="file-input-group">
+          <form method="post" action="{{ url_for('add_files', submission_id=submission_id) }}" enctype="multipart/form-data" style="display:inline;">
+            <input type="file" name="file" multiple style="display:inline;">
+            <button type="submit" class="btn btn-add-files">
+              <i class="fas fa-plus"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="form-container">
+      <form method="post" enctype="multipart/form-data">
+        <div class="form-group">
+          <input type="text" name="uploader" placeholder="Uploader Name" required>
+        </div>
+        <div class="form-group">
+          <input type="file" id="file" name="file" multiple required>
+        </div>
+        <div style="display: flex; align-items: center;">
+          <button type="submit" style="margin-right: 40px;">Upload</button>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>
